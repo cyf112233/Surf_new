@@ -45,13 +45,19 @@ public class ItemUtils {
 
     private static Map<Enchantment, Integer> buildWeaponEnchantMax() {
         Map<Enchantment, Integer> m = new HashMap<>();
-        // 通用武器附魔
-        m.put(Enchantment.MENDING, 1);                  // 经验修补 I
-        m.put(Enchantment.DURABILITY, 3);               // 耐久 III
-        m.put(Enchantment.SMITE, 5);                    // 亡灵杀手 V
-        m.put(Enchantment.DAMAGE_ARTHROPODS, 5);        // 节肢杀手 V
-        m.put(Enchantment.FIRE_ASPECT, 2);              // 火焰附加 II
-        m.put(Enchantment.VANISHING_CURSE, 1);          // 消失诅咒 I
+        // 通用武器附魔（使用 NamespacedKey 获取，跨版本更稳健）
+        Enchantment mending = Enchantment.getByKey(NamespacedKey.minecraft("mending"));                 // 经验修补 I
+        if (mending != null) m.put(mending, 1);
+        Enchantment unbreaking = Enchantment.getByKey(NamespacedKey.minecraft("unbreaking"));           // 耐久 III
+        if (unbreaking != null) m.put(unbreaking, 3);
+        Enchantment smite = Enchantment.getByKey(NamespacedKey.minecraft("smite"));                     // 亡灵杀手 V
+        if (smite != null) m.put(smite, 5);
+        Enchantment bane = Enchantment.getByKey(NamespacedKey.minecraft("bane_of_arthropods"));         // 节肢杀手 V
+        if (bane != null) m.put(bane, 5);
+        Enchantment fireAspect = Enchantment.getByKey(NamespacedKey.minecraft("fire_aspect"));          // 火焰附加 II
+        if (fireAspect != null) m.put(fireAspect, 2);
+        Enchantment vanishing = Enchantment.getByKey(NamespacedKey.minecraft("vanishing_curse"));       // 消失诅咒 I
+        if (vanishing != null) m.put(vanishing, 1);
 
         // 1.21 重锤（Mace）相关附魔（若服务器 API 存在）
         Enchantment density = Enchantment.getByKey(NamespacedKey.minecraft("density"));       // 致密 V
