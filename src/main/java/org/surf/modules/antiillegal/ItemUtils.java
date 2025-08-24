@@ -16,7 +16,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.HashMap;
+import java.util.Collections;
 import java.util.logging.Level;
+import org.bukkit.NamespacedKey;
 
 public class ItemUtils {
     private final static Main plugin = Main.getInstance();
@@ -35,6 +38,38 @@ public class ItemUtils {
             ILLEGALMATERIALS.add(material);
         }
 
+    }
+
+    // Weapon enchantment max levels (includes 1.21 mace enchants)
+    private static final Map<Enchantment, Integer> WEAPON_ENCHANT_MAX = buildWeaponEnchantMax();
+
+    private static Map<Enchantment, Integer> buildWeaponEnchantMax() {
+        Map<Enchantment, Integer> m = new HashMap<>();
+        // 通用武器附魔
+        m.put(Enchantment.MENDING, 1);                  // 经验修补 I
+        m.put(Enchantment.DURABILITY, 3);               // 耐久 III
+        m.put(Enchantment.SMITE, 5);                    // 亡灵杀手 V
+        m.put(Enchantment.DAMAGE_ARTHROPODS, 5);        // 节肢杀手 V
+        m.put(Enchantment.FIRE_ASPECT, 2);              // 火焰附加 II
+        m.put(Enchantment.VANISHING_CURSE, 1);          // 消失诅咒 I
+
+        // 1.21 重锤（Mace）相关附魔（若服务器 API 存在）
+        Enchantment density = Enchantment.getByKey(NamespacedKey.minecraft("density"));       // 致密 V
+        if (density != null) m.put(density, 5);
+        Enchantment breach = Enchantment.getByKey(NamespacedKey.minecraft("breach"));         // 破甲 IV
+        if (breach != null) m.put(breach, 4);
+        Enchantment windBurst = Enchantment.getByKey(NamespacedKey.minecraft("wind_burst"));  // 风爆 III
+        if (windBurst != null) m.put(windBurst, 3);
+
+        return Collections.unmodifiableMap(m);
+    }
+
+    private static boolean isWeapon(Material type) {
+        String name = type.name();
+        return name.endsWith("_SWORD")
+                || name.endsWith("_AXE")
+                || name.equals("TRIDENT")
+                || name.equals("MACE"); // 1.21+
     }
 
     public static boolean isIllegal(ItemStack item) {
@@ -60,8 +95,26 @@ public class ItemUtils {
 
     public static boolean hasIllegalEnchants(ItemStack item) {
         Map<Enchantment, Integer> enchants = item.getEnchantments();
-        for (int level : enchants.values()) {
-            return level > ConfigCache.IllegalEnchantsThreshold;
+        if (enchants.isEmpty()) return false;
+
+        boolean weapon = isWeapon(item.getType());
+
+        for (Entry<Enchantment, Integer> e : enchants.entrySet()) {
+            Enchantment ench = e.getKey();
+            int level = e.getValue();
+
+            if (weapon) {
+                Integer max = WEAPON_ENCHANT_MAX.get(ench);
+                if (max != null) {
+                    if (level > max) return true; // 超出武器专用上限
+                    else continue; // 在上限内则跳过阈值判断
+                }
+            }
+
+            // 其余情况沿用全局阈值（默认 5）
+            if (level > ConfigCache.IllegalEnchantsThreshold) {
+                return true;
+            }
         }
         return false;
     }

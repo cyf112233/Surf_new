@@ -33,13 +33,13 @@ repositories {
 val adventureVersion = "4.15.0"
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
-    api("org.bstats:bstats-bukkit:3.0.2")
-    api("com.tcoded:FoliaLib:0.3.1")
+    compileOnly("io.papermc.paper:paper-api:+")
+    api("org.bstats:bstats-bukkit:+")
+    api("com.tcoded:FoliaLib:+")
 
-    compileOnly("de.tr7zw:item-nbt-api-plugin:2.12.2")
+    compileOnly("de.tr7zw:item-nbt-api-plugin:+")
 
-    api("net.kyori:adventure-platform-bukkit:4.3.2")
+    api("net.kyori:adventure-platform-bukkit:+")
     api("net.kyori:adventure-api:$adventureVersion")
     api("net.kyori:adventure-text-serializer-legacy:$adventureVersion")
 }

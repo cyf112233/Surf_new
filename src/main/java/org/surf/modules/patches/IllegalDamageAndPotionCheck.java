@@ -9,6 +9,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.surf.util.ConfigCache;
 import org.surf.util.Utils;
 
@@ -55,10 +56,22 @@ public class IllegalDamageAndPotionCheck implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onPotion(EntityPotionEffectEvent event) {
         PotionEffect effect = event.getNewEffect();
-        if (effect != null &&
-                (effect.getAmplifier() > 5 || effect.getDuration() > 12000)) {
-            event.setCancelled(true);
-            if (event.getEntity() instanceof Player player) Utils.sendMessage(player, ConfigCache.IllegalPotionMessage);
+        if (effect == null) return;
+
+        boolean tooStrong = effect.getAmplifier() > 5;
+        boolean tooLong = effect.getDuration() > 12000;
+
+        if (tooStrong || tooLong) {
+            boolean allowedBadOmenDrink = effect.getType() == PotionEffectType.BAD_OMEN
+                    && event.getCause() == EntityPotionEffectEvent.Cause.POTION_DRINK
+                    && effect.getAmplifier() <= 4
+                    && effect.getDuration() <= 12000;
+            if (!allowedBadOmenDrink) {
+                event.setCancelled(true);
+                if (event.getEntity() instanceof Player player) {
+                    Utils.sendMessage(player, ConfigCache.IllegalPotionMessage);
+                }
+            }
         }
     }
 }
