@@ -4,8 +4,14 @@ plugins {
     id("com.github.johnrengelman.shadow") version "8.1.1" apply true
 }
 
+val buildversion: String = if (project.hasProperty("version")) {
+    project.property("version") as String
+} else {
+    "unspecified"
+}
+
+version = buildversion
 group = "org.surf"
-version = "3.4.1"
 description = "Fix exploits and remove illegal/NBT items for anarchy servers"
 
 repositories {
